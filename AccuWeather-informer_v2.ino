@@ -124,8 +124,7 @@ void setup() {
     memcpy(MOON_PHASES, MOON_PHASES_EN, sizeof(MOON_PHASES_EN));
   }
  
-  tft.init();
-  
+  tft.init();  
   tft.fillScreen(TFT_BLACK);
   
   // Swap the colour byte order when rendering
