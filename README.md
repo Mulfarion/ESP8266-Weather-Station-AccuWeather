@@ -1,5 +1,5 @@
 # ESP8266-Weather-Station-AccuWeather
-![ESP8266-Weather-Station-AccuWeather](img/DSC_0979.JPG)
+![ESP8266-Weather-Station-AccuWeather](img/weather.JPG)
 
 ESP8266 Weather Station in Color using ILI9341 TFT 240x320 display
 Supports two language (Russian and English)
