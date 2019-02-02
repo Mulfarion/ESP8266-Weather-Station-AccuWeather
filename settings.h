@@ -5,7 +5,7 @@
 #define WIFI_PASS "freedom4free"
 #define WIFI_HOSTNAME "AccuWeather-informer"
 
-const int UPDATE_INTERVAL_SECS = 60; // Update every 30 minutes
+const int UPDATE_INTERVAL = 120; // Update time interval in minutes
 
 String SET_LANGUAGE = "ru"; //Russian language
 //String SET_LANGUAGE = "en"; //English language
@@ -48,7 +48,7 @@ String MSG_RU[] = {
   "       Обновляем время...      ",
   " Обновляем погодные условия... ",
   "      Обновляем погоду...      ",
-  "    Обновляем астрономию...    ",
+  "Обновление: ",
   "УВ индекс: ",
   "Температура: ",
   "Скорость ветра: ",
@@ -61,7 +61,8 @@ String MSG_RU[] = {
   "УВ текст: ",
   "           Завершено           ",
   "Ощущается: ",
-  "Работает на: "
+  "Работает на: ",
+  "--Нет данных--"
 };       
 
 String MSG_EN[] = {
@@ -75,7 +76,7 @@ String MSG_EN[] = {
     "      Updating time...      ",
     "   Updating conditions...   ",
     "    Updating forecasts...   ",
-    "    Updating astronomy...   ",
+    "Update: ",
     "UV Index: ",
     "Temperature: ",
     "Wind Speed: ",
@@ -88,7 +89,8 @@ String MSG_EN[] = {
     "UV Index text: ",
     "          Done             ",
     "Feels like: ",
-    "Powered by:"
+    "Powered by:",
+    "--No data--"
 }; 
 
 // Change for 12 Hour/ 24 hour style clock
