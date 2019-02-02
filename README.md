@@ -14,7 +14,7 @@ ESP8266 AccuWeather Weather Station - это проект информера и�
 
 # EN
 
-ESP8266 AccuWeather Weather Station is an informer project using data from the AccuWeather site. It has several screens that switch on tap on the screen. Support two language.
+ESP8266 AccuWeather Weather Station is an informer project using data from the AccuWeather site. It has several screens that switch on tap on the screen. Support two language, change in setting file.
 
 # Installation and launch
 1. Connect the screen to the ESP8266 as shown below.
