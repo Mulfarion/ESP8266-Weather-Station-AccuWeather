@@ -91,12 +91,13 @@ void drawCurrentWeather();
 void drawForecast();
 void drawAstronomy();
 void drawCurrentWeatherDetail();
-void drawForecastTable(uint8_t start);
 
 long lastDownloadUpdate = millis();
+String leftTime;
 String getTime(time_t *timestamp);
 time_t dstOffset = 0;
-String MSG_TEXT[24];
+bool NO_DATA = false;
+String MSG_TEXT[25];
 String WDAY_NAMES[7];
 String MONTH_NAMES[12];
 String SUN_MOON_TEXT[8];
@@ -158,9 +159,13 @@ void loop(void) {
   if (touchScreen == 0) {
     drawWifiQuality();
     drawTime();
-    drawCurrentWeather();
-    drawForecast();
-    drawAstronomy();
+    if(!NO_DATA){
+      drawCurrentWeather();
+      drawForecast();
+      drawAstronomy();
+    }else{
+      noData(utf8rus(MSG_TEXT[24]));
+    }
   } else if (touchScreen == 1) {
     refreshScreen();
     touchScreen = 2;
@@ -170,14 +175,22 @@ void loop(void) {
     refreshScreen();
     touchScreen = 4;
   } else if (touchScreen == 4) {
-    drawForecastDetail(5, 10, 1);
-    drawForecastDetail(5, 170, 2);
+    if(!NO_DATA){
+      drawForecastDetail(5, 10, 1);
+      drawForecastDetail(5, 170, 2);
+    }else{
+      noData(utf8rus(MSG_TEXT[24]));
+    }
   } else if (touchScreen == 5) {
     refreshScreen();
     touchScreen = 6;
   } else if (touchScreen == 6) {
-    drawForecastDetail(5, 10, 3);
-    drawForecastDetail(5, 170, 4);
+    if(!NO_DATA){
+      drawForecastDetail(5, 10, 3);
+      drawForecastDetail(5, 170, 4);
+    }else{
+      noData(utf8rus(MSG_TEXT[24]));
+    }
   } else if (touchScreen == 7) {
     refreshScreen();
     touchScreen = 8;
@@ -189,11 +202,21 @@ void loop(void) {
   }
   
   // Check if we should update weather information
-  if (millis() - lastDownloadUpdate > 60000 * UPDATE_INTERVAL_SECS) {
-      tft.fillScreen(TFT_BLACK);
-      updateData();
-      touchScreen = 0;
-      lastDownloadUpdate = millis();
+  if (millis() - lastDownloadUpdate > 60000 * UPDATE_INTERVAL) { //after 7200000 ms update
+    tft.fillScreen(TFT_BLACK);
+    updateData();
+    lastDownloadUpdate = millis();
+  }else{
+    const uint32_t millis_in_day = 1000 * 60 * 60 * 24;
+    const uint32_t millis_in_hour = 1000 * 60 * 60;
+    const uint32_t millis_in_minute = 1000 * 60;
+    int timeUpdate = 60000 * UPDATE_INTERVAL - millis();
+    uint8_t days = timeUpdate / (millis_in_day);
+    uint8_t hours = (timeUpdate - (days * millis_in_day)) / millis_in_hour;
+    uint8_t minutes = (timeUpdate - (days * millis_in_day) - (hours * millis_in_hour)) / millis_in_minute;
+    char time_str[6];
+    sprintf(time_str, "%2dh:%2dm", hours, minutes);
+    leftTime = time_str;
   }
 }
 
@@ -251,53 +274,45 @@ void drawProgress(uint8_t percentage, String text) {
 
 // Update the internet based information and update screen
 void updateData() {
-  drawProgress(20, MSG_TEXT[7]);
+  drawProgress(30, MSG_TEXT[7]);
   configTime(UTC_OFFSET * 3600, 0, NTP_SERVERS);  
   while(!time(nullptr)) {
     Serial.print("#");
     delay(100);
   }
   dstOffset = UTC_OFFSET * 3600 + dstAdjusted.time(nullptr) - time(nullptr);
-  drawProgress(50, MSG_TEXT[8]);
-  Serial.println(String(ESP.getFreeHeap()));
+  drawProgress(60, MSG_TEXT[8]);
   int timeStart = millis();
   int ret = aw.getCurrent(&dataC);
   if (ret != 0){
     Serial.println("ERROR_1");
     Serial.println(ret);
+    tft.fillScreen(TFT_BLACK);
+    NO_DATA = true;
     return;
   }
   while (aw.continueDownload() > 0){
   }
   timeStart = millis() - timeStart;
   Serial.printf("Downloaded and parsed in %d ms\n", timeStart);
-  Serial.println(String(ESP.getFreeHeap()));
   delay(1000);
-  drawProgress(70, MSG_TEXT[9]);
-  Serial.println(String(ESP.getFreeHeap()));
+  drawProgress(80, MSG_TEXT[9]);
   int timeStart2 = millis();
   int cast = aw.getDaily(dataD,5);
   if (cast != 0){
     Serial.println("ERROR_2");
     Serial.println(cast);
+    tft.fillScreen(TFT_BLACK);
+    NO_DATA = true;
     return;
   }
   while (aw.continueDownload() > 0){
   }
   timeStart2 = millis() - timeStart2;
   Serial.printf("Downloaded and parsed in %d ms\n", timeStart2);
-  Serial.println(String(ESP.getFreeHeap()));
-  drawProgress(90, MSG_TEXT[10]);
-  
   drawProgress(100, MSG_TEXT[21]);
   delay(1000);
-  tft.fillScreen(TFT_BLACK);
-  drawTime();
-  drawCurrentWeather();  
-  drawForecast();
-  drawAstronomy();
-  Serial.print("Free memory: ");
-  Serial.println(String(ESP.getFreeHeap()));
+  touchScreen = 9;
 }
 
 
@@ -445,8 +460,6 @@ void drawForecastDetail(uint16_t x, uint16_t y, uint8_t dayIndex) {
   tft.setTextColor(TFT_ORANGE);
   tft.drawString(utf8rus(dataD[dayIndex].Day.LongPhrase), 120, y + 60);
   
-  //tft.drawFastHLine(0, y + 70, 240, TFT_DARKGREY);
-  
   tft.setTextDatum(ML_DATUM);
   tft.setTextColor(TFT_YELLOW);
   tft.drawString(utf8rus(MSG_TEXT[5]), x + 40, y + 85);
@@ -483,14 +496,12 @@ void drawForecastDetailMini(uint16_t x, uint16_t y, uint8_t dayIndex) {
   
   tft.setTextColor(TFT_BLUE);
   tft.drawString(String(dataD[dayIndex].Day.TotalLiquid) + "mm", x + 25, y + 65);
-
 }
 
 
 void drawAbout() {
   tft.pushImage(84, 5, 72, 64, CrazyLogo);
   tft.setTextDatum(BC_DATUM);
-  tft.setTextColor(TFT_WHITE);
   tft.drawString(utf8rus(MSG_TEXT[0]), 120, 95, 1);
   drawLabelValue(7, "Heap Mem:", String(ESP.getFreeHeap() / 1024)+"kb");
   drawLabelValue(8, "Flash Mem:", String(ESP.getFlashChipRealSize() / 1024 / 1024) + "MB");
@@ -507,9 +518,10 @@ void drawAbout() {
   uint8_t minutes = (millis() - (days * millis_in_day) - (hours * millis_in_hour)) / millis_in_minute;
   sprintf(time_str, "%2dd%2dh%2dm", days, hours, minutes);
   drawLabelValue(13, "Uptime: ", time_str);
+  drawLabelValue(14, utf8rus(MSG_TEXT[10]), leftTime);
   tft.setTextDatum(BL_DATUM);
   tft.setTextColor(TFT_YELLOW);
-  tft.drawString("Last Reset: ", 15, 250, 1);
+  tft.drawString("Last Reset: ", 15, 255, 1);
   tft.setTextColor(TFT_WHITE);
-  tft.drawString(ESP.getResetInfo(), 15, 265, 1);
+  tft.drawString(ESP.getResetReason(), 15, 270, 1);
 }
