@@ -37,8 +37,13 @@ int8_t getWifiQuality() {
 }
 
 String addZero(int n) {
-  String zero = "0";
-  if(n < 10) return zero + String(n);
+  if(n < 10) return String("0") + String(n);
+  else return String(n);
+}
+
+String addZeroTime(uint8_t str){
+  int n = String((char)str).toInt();
+  if(n < 10) return String("0") + String(n);
   else return String(n);
 }
 
@@ -407,4 +412,10 @@ void drawLabelValue(uint8_t line, String label, String value) {
   tft.drawString(label, labelX, 30 + line * 15);
   tft.setTextColor(TFT_WHITE, TFT_BLACK);
   tft.drawString(value, valueX, 30 + line * 15);
+}
+
+void noData(String textData) {
+  tft.pushImage(70, 110, 100, 60, img45);
+  tft.setTextColor(TFT_MAGENTA);
+  tft.drawString(textData, 120, 185);
 }
