@@ -5,14 +5,14 @@
 #define WIFI_PASS "freedom4free"
 #define WIFI_HOSTNAME "AccuWeather-informer"
 
-const int UPDATE_INTERVAL = 120; // Update time interval in minutes
+const int UPDATE_INTERVAL = 3*60; // Update time interval in minutes
 
 String SET_LANGUAGE = "ru"; //Russian language
 //String SET_LANGUAGE = "en"; //English language
 
 // AccuWeather Settings
 // Sign up here to get an API key: https://developer.accuweather.com/getting-started
-const char* ACCUWEATHER_API_KEY = "DiGLrf0jmtfkQP0o694iX9mJpCbp6fsq"; //Limited Trial 50 calls/day
+const char* ACCUWEATHER_API_KEY = "YOU_API_KEY"; //Limited Trial 50 calls/day
 const int ACCUWEATHER_CITY_ID = 2452002;
 const String ACCUWEATHER_CITY_NAME = "Снежногорск";
 const char* ACCUWEATHER_LANGUAGE = "ru-ru";
