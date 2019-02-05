@@ -288,6 +288,7 @@ void updateData() {
     Serial.println(ret);
     tft.fillScreen(TFT_BLACK);
     NO_DATA = true;
+    lastDownloadUpdate = millis();
     return;
   }
   while (aw.continueDownload() > 0){
@@ -303,6 +304,7 @@ void updateData() {
     Serial.println(cast);
     tft.fillScreen(TFT_BLACK);
     NO_DATA = true;
+    lastDownloadUpdate = millis();
     return;
   }
   while (aw.continueDownload() > 0){
